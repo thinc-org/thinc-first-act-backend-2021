@@ -1,7 +1,7 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 
 load_dotenv()
 
@@ -36,6 +36,34 @@ def requestBody():
 @app.route("/post_method", methods=['POST'])
 def postMethod():
     return f"This Is Post Method"
+
+
+@app.route("/blogs/all")
+def getAllBlogs():
+    blogs = db.table('blogs')
+    return jsonify(blogs.all())
+
+
+@app.route("/blogs/header/<string:header>")
+def getBlog(header):
+    blogs = db.table('blogs')
+    blogData = blogs.search(where('header') == header)
+    if (len(blogData) == 0):
+        return f'Blog "{header}" Not Found', 404
+    else:
+        return jsonify(blogData[0])
+
+
+@app.route("/blogs/author/<string:author>")
+def getBlogsByAuthor(author):
+    blogs = db.table('blogs')
+    return jsonify(blogs.search(where('author') == author))
+
+
+@app.route("/blogs/search")
+def searchBlogs():
+    blogs = db.table('blogs')
+    return jsonify(blogs.search(Query().tags.any([request.args.get('tag')])))
 
 
 # create blog: require field header, content, author
