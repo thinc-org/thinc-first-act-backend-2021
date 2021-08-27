@@ -99,6 +99,17 @@ def createBlog():
         return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}", 201
 
 
+@app.route("/blogs/update/<string:header>", methods=['PUT'])
+def updateBlog(header):
+    blogs = db.table('blogs')
+    updateBlogID = blogs.update(
+        {"content": request.data.decode('utf-8')}, where('header') == header)
+    if len(updateBlogID) == 0:
+        return f'Blog "{header}" Not Found', 404
+    else:
+        return f'Blog "{header}" Updated', 200
+
+
 @app.route("/blogs/delete/<string:header>", methods=['DELETE'])
 def deleteBlog(header):
     blogs = db.table('blogs')
