@@ -1,12 +1,15 @@
 from flask import Flask, request
 from dotenv import load_dotenv
 import os
+from tinydb import TinyDB, Query
 
 load_dotenv()
 
 PORT = int(os.getenv('PORT'))
 DEBUG = os.getenv('DEBUG').strip().lower() == "true"
+DB = os.getenv('DB').strip()
 
+db = TinyDB(DB)
 app = Flask(__name__)
 
 
@@ -55,7 +58,17 @@ def createBlog():
         if type(tag) != str:
             return f"Invalid tag: tag should be string", 400
 
-    return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}"
+    blogs = db.table('blogs')
+    if blogs.search(Query().header == request.json['header']) != []:
+        return f"Can't create blog, blog header already exists.", 409
+    else:
+        blogs.insert({
+            'header': request.json['header'],
+            'content': request.json['content'],
+            'author': request.json['author'],
+            'tags': request.json['tags'],
+        })
+        return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}", 201
 
 
 if __name__ == "__main__":
