@@ -99,5 +99,15 @@ def createBlog():
         return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}", 201
 
 
+@app.route("/blogs/delete/<string:header>", methods=['DELETE'])
+def deleteBlog(header):
+    blogs = db.table('blogs')
+    removeBlogID = blogs.remove(where('header') == header)
+    if len(removeBlogID) == 0:
+        return f'Blog "{header}" Not Found', 404
+    else:
+        return f'Blog "{header}" Deleted', 200
+
+
 if __name__ == "__main__":
     app.run(port=PORT, debug=DEBUG)
