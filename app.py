@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 from tinydb import TinyDB, Query, where
@@ -11,7 +12,7 @@ DB = os.getenv('DB').strip()
 
 db = TinyDB(DB)
 app = Flask(__name__)
-
+cors = CORS(app)
 
 @app.route("/")
 def hello_world():
