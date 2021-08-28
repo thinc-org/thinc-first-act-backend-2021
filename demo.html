@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo</title>
+    <style>
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus,
+      input:-webkit-autofill:active,
+      textarea:-webkit-autofill,
+      textarea:-webkit-autofill:hover,
+      textarea:-webkit-autofill:focus,
+      select:-webkit-autofill,
+      select:-webkit-autofill:hover,
+      select:-webkit-autofill:focus {
+        /* border: 0px solid #393e46; */
+        -webkit-box-shadow: 0 0 0 20px #393e46 inset !important;
+      }
+      input:-webkit-autofill {
+        -webkit-text-fill-color: white !important;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+      }
+      .button {
+        width: 24.3vw;
+        height: 7.8vh;
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: bold;
+        color: #393e46;
+        font-size: 2.78vw;
+
+        background: #ffffff;
+        border-radius: 6.25vw;
+        border: none;
+        text-align: center;
+        margin: 2.08vw;
+        transition-duration: 0.5s;
+        cursor: pointer;
+      }
+
+      .button-menu {
+        width: 10vw;
+        height: 6vh;
+        font-size: 1vw;
+        background-color: white;
+        color: #393e46;
+        /* border: 5px solid #393e46; */
+      }
+
+      .button-menu:hover {
+        background-color: #15aa78;
+        color: white;
+        border: none;
+      }
+      
+      .button-submit {
+        background-color: white;
+        color: #393e46;
+        /* border: 5px solid #393e46; */
+      }
+
+      .button-submit:hover {
+        background-color: #15aa78;
+        color: white;
+        border: none;
+      }
+      .main-background {
+        background-color: #393e46;
+      }
+
+      .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+
+      input {
+        width: 80%;
+        background-color: transparent;
+        color: white;
+        font-size: 2vw;
+        font-weight: bold;
+        border: none;
+        border-bottom: 0.27vw solid white;
+        transition: color 1s;
+      }
+
+      input:focus {
+        width: 80%;
+        background-color: transparent;
+        color: #bdfdfd;
+        border: none;
+        border-bottom: 0.27vw solid white;
+      }
+
+      input:hover {
+        width: 80%;
+        background-color: transparent;
+        color: #bdfdfd;
+        border: none;
+        border-bottom: 0.27vw solid white;
+      }
+
+      label {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 2.22vw;
+        color: white;
+        text-shadow: 0px 0.27vw 0.27vw rgba(0, 0, 0, 0.25);
+        transition: font-size 1s;
+      }
+
+      label:hover {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 3.33vw;
+        color: white;
+        text-shadow: 0px 0.27vw 0.27vw rgba(0, 0, 0, 0.25);
+      }
+
+      h1 {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        color: white;
+        text-shadow: 0px 0.27vw 0.27vw rgba(0, 0, 0, 0.25);
+        transition: font-size 2s;
+      }
+
+      span {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        color: white;
+        padding: 10px;
+      }
+
+      p {
+        padding-left: 10px;
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        color: white;
+      }
+
+      .myText {
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 1vw;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="main-background">
+    <button class="button button-menu" id="all-posts" onclick="allPost()">
+      All post
+    </button>
+    <button class="button button-menu" id="create-post" onclick="createPost()">
+      Create post
+    </button>
+    <button class="button button-menu" id="update-post" onclick="updatePost()">
+      Update post
+    </button>
+    <button class="button button-menu" id="update-post" onclick="deletePost()">
+      Delete post
+    </button>
+    <div id="all-posts-div" style="display:none">
+    </div>
+    <div id="create-post-div" style="display:none">
+        <div class="centered" id="create-post-root">
+            <h1 class="">Create Blog</h1>
+            <br />
+            <form id="create-blog">
+              <label for="header" class="">Header</label><br />
+              <input type="text" name="header" id="header" /><br />
+              <label for="content">Content</label><br />
+              <input type="text" name="content" id="content" /><br />
+              <label for="author">Author</label><br />
+              <input type="text" name="author" id="author" /><br />
+              <label for="tags">Tag</label><br />
+              <input type="text" name="tags" id="tags" /><br />
+            </form>
+            <button class="button button-submit" onclick="submitform()">Create</button>
+            <div>
+              <div class="myText">Result:</div>
+              <div>
+                <span class="myText">Status Code:</span>
+                <span id="create-result-status" class="myText"=></span>
+              </div>
+              <div id="create-result-text" class="myText"></div>
+            </div>
+          </div>
+    </div>
+    <div id="update-post-div">
+        <div class="centered" id="root">
+            <h1 class="">Update Blog</h1>
+            <br />
+            <form id="update-blog">
+                <label for="header" class="">Header</label><br />
+                <input type="text" name="header" id="header" /><br />
+                <label for="content">Content</label><br />
+                <input type="text" name="content" id="content" /><br />
+            </form>
+            <button class="button button-submit" onclick="updateBlog()">Update</button>
+            <div>
+                <div class="myText">Result:</div>
+                <div>
+                <span class="myText">Status Code:</span>
+                <span id="update-result-status" class="myText"=></span>
+                </div>
+                <div id="update-result-text" class="myText"></div>
+            </div>
+        </div>
+    </div>
+    <div id="delete-post-div">
+        <div id="delete-post-root" class="centered">
+        </div>
+    </div>
+  </body>
+  <script>
+    const PORT = 3000;
+    const allPostsDiv = document.getElementById("all-posts-div");
+    const createPostDiv = document.getElementById("create-post-div");
+    const updatePostDiv = document.getElementById("update-post-div");
+    const deletePostDiv = document.getElementById("delete-post-div");
+    const createFormData = document.getElementById("create-blog");
+    const createResultText = document.getElementById("create-result-text");
+    const createResultStatus = document.getElementById("create-result-status");
+    const createHeader = createFormData.querySelector('input[name="header"]');
+    const createContent = createFormData.querySelector('input[name="content"]');
+    const author = createFormData.querySelector('input[name="author"]');
+    const tags = createFormData.querySelector('input[name="tags"]');
+    const updateFormData = document.getElementById("update-blog");
+    const updateResultText = document.getElementById("update-result-text");
+    const updateResultStatus = document.getElementById("update-result-status");
+    const updateHeader = updateFormData.querySelector('input[name="header"]');
+    const updateContent = updateFormData.querySelector('input[name="content"]');
+    const deleteRootDiv = document.getElementById("delete-post-root");
+
+    function hideAll() {
+      allPostsDiv.style.display="none";
+      createPostDiv.style.display="none";
+      updatePostDiv.style.display="none";
+      deletePostDiv.style.display="none";
+    }
+
+    function allPost() {
+      hideAll();
+      allPostsDiv.style.display="block";
+      getAllPost();
+    }
+
+    function createPost() {
+      hideAll();
+      createPostDiv.style.display="block";
+    }
+    
+    function updatePost() {
+      hideAll();
+      updatePostDiv.style.display="block";
+    }
+
+    function deletePost() {
+      hideAll();
+      deletePostDiv.style.display="block";
+      getAllPostForDelete();
+    }
+    
+    async function getAllPost() {
+      const res = await fetch(`http://localhost:${PORT}/blogs/all`).then(res=>res.json());
+      getAllPosts(res);
+    }
+
+    function getAllPosts(posts) {
+      allPostsDiv.innerHTML="";
+      for (post of posts) {
+        const div = document.createElement("div");
+        div.style.padding="15px";
+        div.innerHTML=`
+        <h1>${post.header}</h1>
+        <p>${post.content}</p>
+        <span>Author: ${post.author}</span>
+        <span>Tags: ${post.tags.join(", ")}</span>
+        `;
+        allPostsDiv.append(div);
+      }
+    }
+
+    async function submitform() {
+      const data = {
+        header: createHeader.value,
+        content: createContent.value,
+        author: author.value,
+        tags: tags.value.split(",").map(e=>e.trim()),
+      };
+      const res = await fetch(`http://localhost:${PORT}/blogs/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      createResultStatus.innerHTML = res.status;
+      createResultText.innerHTML = await res.text();
+    }
+
+    async function updateBlog(){
+      const res = await fetch(`http://localhost:${PORT}/blogs/update/${updateHeader.value}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: updateContent.value,
+        });
+        updateResultStatus.innerHTML = res.status;
+        updateResultText.innerHTML = await res.text();
+      }
+
+    async function deleteBlog(header) {
+        const res = await fetch(
+            `http://localhost:${PORT}/blogs/delete/${header}`,
+            { method: "DELETE" }
+        );
+        getAllPostForDelete();
+    }
+
+    function createDeleteButton(post) {
+        const button = document.createElement("button");
+        button.classList.add("button");
+        button.classList.add("button-menu");
+        button.innerText = `${post.header}`;
+        button.setAttribute("onclick", `deleteBlog("${post.header}")`);
+        deleteRootDiv.appendChild(button);
+    }
+    
+    async function getAllPostForDelete() {
+        deleteRootDiv.innerHTML="";
+        const res = await fetch(`http://localhost:${PORT}/blogs/all`).then(
+          (res) => {
+            return res.json();
+          }
+        );
+  
+        for (post of res) {
+          createDeleteButton(post);
+        }
+    }
+
+  </script>
+</html>
