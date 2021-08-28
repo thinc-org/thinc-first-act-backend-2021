@@ -3,6 +3,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 from tinydb import TinyDB, Query, where
+#import เพิ่มด้วยนะจ๊ะ
+from tinydb.operations import add
 
 load_dotenv()
 
@@ -96,6 +98,7 @@ def createBlog():
             'content': request.json['content'],
             'author': request.json['author'],
             'tags': request.json['tags'],
+            'comment': []
         })
         return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}", 201
 
@@ -120,6 +123,60 @@ def deleteBlog(header):
     else:
         return f'Blog "{header}" Deleted', 200
 
+@app.route("/blogs/update/<string:header>/tags", methods=['PUT'])
+def updateBlogTag(header):
+    if not request.is_json:
+        return "Invalid JSON", 400
+    blogs = db.table('blogs')
+    updateBlogID = blogs.update(add("tags", request.json['tags']), where('header') == header)
+    if len(updateBlogID) == 0:
+        return f'Blog "{header}" Not Found', 404
+    else:
+        return f'Blog "{header}" Updated', 200
+
+@app.route("/comments/create", methods=['POST'])
+def createComment():
+    if not request.is_json:
+        return "Invalid JSON", 400
+
+    # Basic Validation
+    requiredField = [("header", str),
+                     ("content", str),
+                     ("author", str)]
+
+    for fieldValue, fieldType in requiredField:
+        if fieldValue not in request.json:
+            return f"Missing field: {fieldValue}", 400
+        elif type(request.json[fieldValue]) != fieldType:
+            return f"Invalid field type: {fieldValue} should be {fieldType}", 400
+
+    comment = [{'content': request.json['content'],
+                'author': request.json['author']}]
+
+    blogs = db.table('blogs')
+    if blogs.search(Query().header == request.json['header']) == []:
+        return f"Can't find blog", 404
+    else:
+        blogs.upsert(add("comment",comment), where('header') == request.json['header']);
+        return f"Successfully created comment", 201
+
+@app.route("/blogs/<string:header>/comments/all")
+def getAllBlogComment(header):
+    blogs = db.table('blogs')
+    blog = blogs.search(Query().header == header);
+    if blog == []:
+        return "Not found blog", 404
+    return jsonify(blog[0]['comment'])
+
+@app.route("/comments/<string:author>/all")
+def getAllAuthorComment(author):
+    result = [];
+    blogs = db.table('blogs')
+    for blog in blogs.all() :
+        for comment in blog['comment']:
+            if comment['author'] == author:
+                result.append(comment)
+    return jsonify({"comment": result});
 
 if __name__ == "__main__":
     app.run(port=PORT, debug=DEBUG)
