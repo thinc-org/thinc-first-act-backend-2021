@@ -97,8 +97,7 @@ def createBlog():
             'header': request.json['header'],
             'content': request.json['content'],
             'author': request.json['author'],
-            'tags': request.json['tags'],
-            'comment': []
+            'tags': request.json['tags']
         })
         return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}", 201
 
@@ -150,33 +149,53 @@ def createComment():
         elif type(request.json[fieldValue]) != fieldType:
             return f"Invalid field type: {fieldValue} should be {fieldType}", 400
 
-    comment = [{'content': request.json['content'],
-                'author': request.json['author']}]
-
     blogs = db.table('blogs')
-    if blogs.search(Query().header == request.json['header']) == []:
-        return f"Can't find blog", 404
-    else:
-        blogs.upsert(add("comment",comment), where('header') == request.json['header']);
-        return f"Successfully created comment", 201
+    if blogs.search(Query().header == request.json['header']) == [] :
+        return "Not found blog", 404
+
+    comments = db.table('comments')
+    commentId = comments.insert({
+        'header': request.json['header'],
+        'content': request.json['content'],
+        'author': request.json['author']
+    })
+    return f"Successfully create comment id: {commentId}", 201
+
+@app.route("/comments/all")
+def getAllComment(header):
+    comments = db.table('comments')
+    return jsonify(comments.all());
 
 @app.route("/blogs/<string:header>/comments/all")
 def getAllBlogComment(header):
-    blogs = db.table('blogs')
-    blog = blogs.search(Query().header == header);
-    if blog == []:
-        return "Not found blog", 404
-    return jsonify(blog[0]['comment'])
+    comments = db.table('comments')
+    return jsonify(comments.search(Query().header == header));
 
 @app.route("/comments/<string:author>/all")
 def getAllAuthorComment(author):
-    result = [];
-    blogs = db.table('blogs')
-    for blog in blogs.all() :
-        for comment in blog['comment']:
-            if comment['author'] == author:
-                result.append(comment)
-    return jsonify({"comment": result});
+    comments = db.table('comments')
+    return jsonify(comments.search(Query().author == author));
+
+@app.route("/comments/<int:id>", methods=['PATCH'])
+def updateComment(id):
+    if not request.is_json:
+        return "Invalid JSON", 400
+
+    comments = db.table('comments')
+    updateCommentID = comments.update({"content":request.json['content']}, doc_ids=[id])
+    if len(updateCommentID) == 0:
+        return f'Not found comment', 404
+    else:
+        return f'Successfully updated', 200
+
+@app.route("/comments/<int:id>", methods=['DELETE'])
+def deleteComment(id):
+    comments = db.table('comments')
+    removeCommentID = comments.remove(doc_ids=[id])
+    if len(removeCommentID) == 0:
+        return f'Not found comment', 404
+    else:
+        return f'Successfully deleted', 200
 
 if __name__ == "__main__":
     app.run(port=PORT, debug=DEBUG)
