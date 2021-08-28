@@ -122,7 +122,7 @@ def deleteBlog(header):
     else:
         return f'Blog "{header}" Deleted', 200
 
-@app.route("/blogs/update/<string:header>/tags", methods=['PUT'])
+@app.route("/blogs/<string:header>/tags", methods=['PUT'])
 def updateBlogTag(header):
     if not request.is_json:
         return "Invalid JSON", 400
@@ -159,7 +159,9 @@ def createComment():
         'content': request.json['content'],
         'author': request.json['author']
     })
-    return f"Successfully create comment id: {commentId}", 201
+    comment = comments.get(doc_id=commentId);
+    comment['id'] = commentId;
+    return jsonify(comment), 201
 
 @app.route("/comments/all")
 def getAllComment(header):
@@ -176,7 +178,7 @@ def getAllAuthorComment(author):
     comments = db.table('comments')
     return jsonify(comments.search(Query().author == author));
 
-@app.route("/comments/<int:id>", methods=['PATCH'])
+@app.route("/comments/<int:id>", methods=['PUT'])
 def updateComment(id):
     if not request.is_json:
         return "Invalid JSON", 400
@@ -186,7 +188,9 @@ def updateComment(id):
     if len(updateCommentID) == 0:
         return f'Not found comment', 404
     else:
-        return f'Successfully updated', 200
+        comment = comments.get(doc_id=id);
+        comment['id'] = id;
+        return jsonify(comment), 200
 
 @app.route("/comments/<int:id>", methods=['DELETE'])
 def deleteComment(id):
