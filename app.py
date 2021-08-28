@@ -12,39 +12,42 @@ DB = os.getenv('DB').strip()
 
 db = TinyDB(DB)
 app = Flask(__name__)
+#CORS 
 cors = CORS(app)
 
+#First route request
 @app.route("/")
 def hello_world():
     return "Hello, Flask"
 
-
+#Get id from parameter
 @app.route("/path_parameter/<int:id>")  # /blogs/{id}
 def pathParameter(id):
     return f"From Path Parameter\nRequest For ID: {id}"
 
-
+#Get id from query
 @app.route("/query_parameter")  # /blogs?id=1
 def queryParameter():
     return f"From Query Parameter\nRequest For ID: {request.args.get('id')}"
 
-
+#Get id from json body
 @app.route("/request_body")
 def requestBody():
     return f"From Request Body\nRequest For ID: {request.json['id']}"
 
-
+#POST method
 @app.route("/post_method", methods=['POST'])
 def postMethod():
     return f"This Is Post Method"
 
-
+#Get all blogs
 @app.route("/blogs/all")
 def getAllBlogs():
     blogs = db.table('blogs')
-    return jsonify(blogs.all())
+    data = {"blogs" : blogs.all()}
+    return jsonify(data)
 
-
+#Search blog from header
 @app.route("/blogs/header/<string:header>")
 def getBlog(header):
     blogs = db.table('blogs')
@@ -54,13 +57,15 @@ def getBlog(header):
     else:
         return jsonify(blogData[0])
 
-
+#Search blog from author
 @app.route("/blogs/author/<string:author>")
 def getBlogsByAuthor(author):
     blogs = db.table('blogs')
-    return jsonify(blogs.search(where('author') == author))
+    wanted_blogs = blogs.search(where('author') == author)
+    data = {"blogs":wanted_blogs}
+    return jsonify(data)
 
-
+#Search blogs from tags
 @app.route("/blogs/search")
 def searchBlogs():
     blogs = db.table('blogs')
@@ -70,36 +75,16 @@ def searchBlogs():
 # create blog: require field header, content, author
 @app.route("/blogs/create", methods=['POST'])
 def createBlog():
-    if not request.is_json:
-        return "Invalid JSON", 400
-
-    # Basic Validation
-    requiredField = [("header", str),
-                     ("content", str),
-                     ("author", str),
-                     ("tags", list)]
-    for fieldValue, fieldType in requiredField:
-        if fieldValue not in request.json:
-            return f"Missing field: {fieldValue}", 400
-        elif type(request.json[fieldValue]) != fieldType:
-            return f"Invalid field type: {fieldValue} should be {fieldType}", 400
-    for tag in request.json["tags"]:
-        if type(tag) != str:
-            return f"Invalid tag: tag should be string", 400
-
     blogs = db.table('blogs')
-    if blogs.search(Query().header == request.json['header']) != []:
-        return f"Can't create blog, blog header already exists.", 409
-    else:
-        blogs.insert({
-            'header': request.json['header'],
-            'content': request.json['content'],
-            'author': request.json['author'],
-            'tags': request.json['tags'],
-        })
-        return f"Create Blog:\nHeader: {request.json['header']}\nContent: {request.json['content']}\nAuthor: {request.json['author']}\nTags: {', '.join(request.json['tags'])}", 201
+    blogs.insert({
+        'header': request.json['header'],
+        'content': request.json['content'],
+        'author': request.json['author'],
+        'tags': request.json['tags'],
+    })
+    return f"Create Blog:\nHeader: {request.json['header']}", 201
 
-
+#Update blog
 @app.route("/blogs/update/<string:header>", methods=['PUT'])
 def updateBlog(header):
     blogs = db.table('blogs')
@@ -110,7 +95,7 @@ def updateBlog(header):
     else:
         return f'Blog "{header}" Updated', 200
 
-
+#Delete blog
 @app.route("/blogs/delete/<string:header>", methods=['DELETE'])
 def deleteBlog(header):
     blogs = db.table('blogs')
